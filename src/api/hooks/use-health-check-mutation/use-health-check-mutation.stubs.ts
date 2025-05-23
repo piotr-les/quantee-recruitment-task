@@ -1,5 +1,5 @@
 import { http, HttpResponse, RequestHandler, delay } from 'msw';
-import { GITHUB_API_URL } from '../../axios-config';
+import { GITHUB_API_URL } from '@api/axios-config';
 import { HEALTH_CHECK_ENDPOINT } from './use-health-check-mutation';
 import { healthCheckMutationSuccessMock } from './use-health-check-mutation.mocks';
 

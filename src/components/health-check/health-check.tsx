@@ -1,7 +1,7 @@
 import { Button, Box, Alert, Typography, CircularProgress } from '@mui/material';
 import Error from '@mui/icons-material/Error';
 import CheckCircle from '@mui/icons-material/CheckCircle';
-import { useHealthCheckMutation } from '../../api/hooks/use-health-check-mutation/use-health-check-mutation';
+import { useHealthCheckMutation } from '@api-hooks/use-health-check-mutation/use-health-check-mutation';
 
 const LoadingState = () => (
 	<Box display="flex" justifyContent="center" sx={{ py: 2 }}>

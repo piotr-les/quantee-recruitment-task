@@ -1,6 +1,6 @@
 import { render, type RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 const createTestQueryClient = () => {
 	return new QueryClient({
@@ -17,7 +17,7 @@ const createTestQueryClient = () => {
 };
 
 interface TestWrapperProps {
-	children: React.ReactNode;
+	children: ReactNode;
 	queryClient?: QueryClient;
 }
 
@@ -34,7 +34,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 export const renderWithProviders = (ui: ReactElement, options?: CustomRenderOptions) => {
 	const { queryClient, ...renderOptions } = options || {};
 
-	const Wrapper = ({ children }: { children: React.ReactNode }) => (
+	const Wrapper = ({ children }: { children: ReactNode }) => (
 		<TestWrapper queryClient={queryClient}>{children}</TestWrapper>
 	);
 

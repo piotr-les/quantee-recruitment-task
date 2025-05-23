@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { App } from './app';
-import { renderWithProviders } from './test/test-utils';
+import { renderWithProviders } from '@test/test-utils';
 
 describe('App', () => {
 	it('renders GitHub Repository Search title and subtitle', () => {

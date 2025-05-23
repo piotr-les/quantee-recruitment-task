@@ -1,5 +1,5 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
-import { githubApi } from '../../axios-config';
+import { githubApi } from '@api/axios-config';
 
 export interface HealthCheckResponse {
 	message: string;
