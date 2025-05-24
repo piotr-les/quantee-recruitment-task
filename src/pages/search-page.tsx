@@ -2,13 +2,31 @@ import { useState } from 'react';
 import { Container, Typography, Box } from '@mui/material';
 import { useSearchRepositoriesQuery } from '@api-hooks/use-search-repositories-query/use-search-repositories-query';
 import { SearchInput } from '@components/search-input/search-input';
-import { StateDisplay } from '@/components/state-display/state-display';
+import { StateDisplay } from '@components/state-display/state-display';
+import { RepositoryListSkeleton } from '@components/repository-list-skeleton/repository-list-skeleton';
+import { RepositoryList } from '@components/repository-list/repository-list';
 
 export const SearchPage = () => {
 	const [query, setQuery] = useState('');
 
-	const { data, isLoading, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
+	const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
 		useSearchRepositoriesQuery(query);
+
+	const hasQuery = query.trim().length > 0;
+	const hasResults = data && data.pages[0]?.total_count > 0;
+	const hasNoResults = data && data.pages[0]?.total_count === 0;
+
+	const handleRetry = () => window.location.reload();
+
+	const renderContent = () => {
+		if (!hasQuery) return <StateDisplay.Empty />;
+		if (isLoading) return <RepositoryListSkeleton />;
+		if (isError) return <StateDisplay.Error onAction={handleRetry} />;
+		if (hasNoResults) return <StateDisplay.NoResults />;
+		if (hasResults)
+			return <RepositoryList data={data} isFetchingNextPage={isFetchingNextPage} />;
+		return null;
+	};
 
 	return (
 		<Container maxWidth="lg">
@@ -26,10 +44,7 @@ export const SearchPage = () => {
 					debounceMs={500}
 				/>
 
-				{!query.trim() ? <StateDisplay.Empty /> : null}
-				{isLoading ? <Typography>Loading...</Typography> : null}
-				{isError ? <StateDisplay.Error onAction={() => window.location.reload()} /> : null}
-				{data?.pages[0]?.total_count === 0 ? <StateDisplay.NoResults /> : null}
+				{renderContent()}
 			</Box>
 		</Container>
 	);
