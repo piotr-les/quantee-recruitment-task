@@ -15,6 +15,7 @@ export const RepositoryItem = ({ repository }: RepositoryItemProps) => {
 						src={repository.owner.avatar_url}
 						alt={repository.owner.login}
 						sx={{ width: 48, height: 48 }}
+						data-testid="repository-owner-avatar"
 					/>
 
 					<Box sx={{ flex: 1 }}>
@@ -28,12 +29,17 @@ export const RepositoryItem = ({ repository }: RepositoryItemProps) => {
 								textDecoration: 'none',
 								color: 'primary.main',
 								'&:hover': { textDecoration: 'underline' },
-							}}>
+							}}
+							data-testid="repository-full-name">
 							{repository.full_name}
 						</Typography>
 
 						{repository.description ? (
-							<Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>
+							<Typography
+								variant="body2"
+								color="text.secondary"
+								sx={{ mt: 1, mb: 2 }}
+								data-testid="repository-description">
 								{repository.description}
 							</Typography>
 						) : null}
@@ -41,13 +47,21 @@ export const RepositoryItem = ({ repository }: RepositoryItemProps) => {
 						<Stack direction="row" spacing={2} alignItems="center">
 							<Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
 								<StarIcon sx={{ fontSize: 16, color: 'warning.main' }} />
-								<Typography variant="body2" color="text.secondary">
+								<Typography
+									variant="body2"
+									color="text.secondary"
+									data-testid="repository-stars">
 									{repository.stargazers_count.toLocaleString()}
 								</Typography>
 							</Box>
 
 							{repository.language ? (
-								<Chip label={repository.language} size="small" variant="outlined" />
+								<Chip
+									label={repository.language}
+									size="small"
+									variant="outlined"
+									data-testid="repository-language"
+								/>
 							) : null}
 						</Stack>
 					</Box>

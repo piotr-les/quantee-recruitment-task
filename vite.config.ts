@@ -12,7 +12,7 @@ export default defineConfig({
 			'@api': '/src/api',
 			'@api-hooks': '/src/api/hooks',
 			'@components': '/src/components',
-			'@mocks': '/src/mocks',
+			'@mocks': '/src/api/mocks',
 			'@test': '/src/test',
 		},
 	},
