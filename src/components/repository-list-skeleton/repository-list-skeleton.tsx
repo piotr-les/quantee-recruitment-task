@@ -9,7 +9,7 @@ export const RepositoryListSkeleton = ({ count = 5 }: RepositoryListSkeletonProp
 	const items = Array(count).fill(null);
 
 	return (
-		<Box sx={{ mt: 3 }}>
+		<Box sx={{ mt: 3 }} data-testid="repository-list-skeleton">
 			{items.map((_, index) => (
 				<RepositoryItemSkeleton key={index} />
 			))}

@@ -2,7 +2,7 @@ import { Card, CardContent, Box, Skeleton, Stack } from '@mui/material';
 
 export const RepositoryItemSkeleton = () => {
 	return (
-		<Card sx={{ mb: 2 }}>
+		<Card sx={{ mb: 2 }} data-testid="repository-item-skeleton">
 			<CardContent>
 				<Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
 					<Skeleton variant="circular" width={48} height={48} />

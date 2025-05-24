@@ -10,6 +10,7 @@ export interface StateDisplayProps {
 	icon?: ReactNode;
 	actionText?: string;
 	onAction?: () => void;
+	testid?: string;
 }
 
 const StateDisplayBase = ({
@@ -18,6 +19,7 @@ const StateDisplayBase = ({
 	icon,
 	actionText,
 	onAction,
+	testid,
 }: StateDisplayProps) => {
 	return (
 		<Box
@@ -28,7 +30,8 @@ const StateDisplayBase = ({
 				justifyContent: 'center',
 				py: 8,
 				textAlign: 'center',
-			}}>
+			}}
+			data-testid={testid}>
 			<Box
 				sx={{
 					fontSize: 80,
@@ -55,6 +58,7 @@ const StateDisplayBase = ({
 
 const Empty = (props: StateDisplayProps) => (
 	<StateDisplayBase
+		testid="state-display-empty"
 		title="Start searching for repositories"
 		description="Enter a search term to find GitHub repositories"
 		icon={<SearchIcon sx={{ fontSize: 'inherit' }} />}
@@ -64,6 +68,7 @@ const Empty = (props: StateDisplayProps) => (
 
 const Error = (props: StateDisplayProps) => (
 	<StateDisplayBase
+		testid="state-display-error"
 		title="Something went wrong"
 		description="An error occurred while fetching repositories. Please try again."
 		icon={<ErrorOutlineIcon sx={{ fontSize: 'inherit' }} />}
@@ -74,6 +79,7 @@ const Error = (props: StateDisplayProps) => (
 
 const NoResults = (props: StateDisplayProps) => (
 	<StateDisplayBase
+		testid="state-display-no-results"
 		title="No repositories found"
 		description="Try adjusting your search terms or search for something else."
 		icon={<InboxIcon sx={{ fontSize: 'inherit' }} />}
