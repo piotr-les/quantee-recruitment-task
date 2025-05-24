@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Container, Typography, Box } from '@mui/material';
 import { useSearchRepositoriesQuery } from '@api-hooks/use-search-repositories-query/use-search-repositories-query';
 import { SearchInput } from '@components/search-input/search-input';
+import { StateDisplay } from '@/components/state-display/state-display';
 
 export const SearchPage = () => {
 	const [query, setQuery] = useState('');
@@ -25,23 +26,10 @@ export const SearchPage = () => {
 					debounceMs={500}
 				/>
 
-				{isLoading && <Typography>Loading...</Typography>}
-				{isError && <Typography color="error">Error: {error?.message}</Typography>}
-
-				{data && (
-					<Box>
-						<Typography variant="body2" sx={{ mb: 2 }}>
-							Found {data.pages[0]?.total_count} repositories ({data.pages.length} pages
-							loaded)
-						</Typography>
-
-						{hasNextPage && (
-							<button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-								{isFetchingNextPage ? 'Loading more...' : 'Load More'}
-							</button>
-						)}
-					</Box>
-				)}
+				{!query.trim() ? <StateDisplay.Empty /> : null}
+				{isLoading ? <Typography>Loading...</Typography> : null}
+				{isError ? <StateDisplay.Error onAction={() => window.location.reload()} /> : null}
+				{data?.pages[0]?.total_count === 0 ? <StateDisplay.NoResults /> : null}
 			</Box>
 		</Container>
 	);
