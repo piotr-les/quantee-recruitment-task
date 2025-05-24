@@ -42,7 +42,5 @@ export const useInfiniteScroll = ({
 		};
 	}, [onIntersect, hasNextPage, enabled, rootMargin, threshold]);
 
-	return {
-		ref: sentinelRef,
-	};
+	return { ref: sentinelRef };
 };
