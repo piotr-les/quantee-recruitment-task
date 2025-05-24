@@ -6,6 +6,7 @@ React application for searching GitHub repositories with infinite scroll functio
 
 - **React** + **TypeScript** + **Vite**
 - **Material-UI** for components
+- **React Query** for api state management
 - **Vitest** + **React Testing Library** for testing
 - **MSW** for API mocking
 

@@ -5,25 +5,47 @@ import { renderWithProviders } from '@test/test-utils';
 import { SearchPage } from './search-page';
 
 describe('SearchPage Integration Tests', () => {
+	let mockIntersectionObserver: any;
+	let mockObserve: any;
+	let intersectionCallbacks: Set<any>;
+
 	beforeAll(() => {
+		intersectionCallbacks = new Set();
+		mockObserve = vi.fn();
+
+		mockIntersectionObserver = vi.fn().mockImplementation(callback => {
+			intersectionCallbacks.add(callback);
+			return {
+				observe: mockObserve,
+				unobserve: vi.fn(),
+				disconnect: vi.fn(),
+			};
+		});
+
 		Object.defineProperty(window, 'IntersectionObserver', {
 			writable: true,
 			configurable: true,
-			value: vi.fn(() => ({
-				observe: vi.fn(),
-				unobserve: vi.fn(),
-				disconnect: vi.fn(),
-			})),
+			value: mockIntersectionObserver,
 		});
 	});
 
 	beforeEach(() => {
 		vi.clearAllTimers();
+		intersectionCallbacks.clear();
+		mockObserve.mockClear();
+		mockIntersectionObserver.mockClear();
 	});
 
 	afterAll(() => {
 		vi.restoreAllMocks();
 	});
+
+	const triggerIntersection = (isIntersecting = true) => {
+		const callback = Array.from(intersectionCallbacks)[0];
+		if (callback) {
+			callback([{ isIntersecting }]);
+		}
+	};
 
 	describe('Empty State', () => {
 		it('shows empty state when no search query is entered', () => {
@@ -295,6 +317,131 @@ describe('SearchPage Integration Tests', () => {
 
 			expect(screen.queryByTestId('repository-list-skeleton')).not.toBeInTheDocument();
 			expect(screen.getByTestId('infinite-scroll-sentinel')).toBeInTheDocument();
+		});
+	});
+
+	describe('Infinite Scroll', () => {
+		it('sets up intersection observer when showing results', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getByText('facebook/react')).toBeInTheDocument();
+			});
+
+			expect(mockIntersectionObserver).toHaveBeenCalled();
+			expect(mockObserve).toHaveBeenCalled();
+			expect(screen.getByTestId('infinite-scroll-sentinel')).toBeInTheDocument();
+		});
+
+		it('loads next page when sentinel intersects', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getByText('facebook/react')).toBeInTheDocument();
+			});
+
+			expect(screen.getAllByTestId('repository-full-name')).toHaveLength(2);
+
+			triggerIntersection(true);
+
+			await waitFor(() => {
+				expect(screen.getAllByTestId('repository-full-name')).toHaveLength(3);
+			});
+
+			expect(screen.getByText('angular/angular')).toBeInTheDocument();
+		});
+
+		it('shows loading skeleton while fetching next page', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getByText('facebook/react')).toBeInTheDocument();
+			});
+
+			triggerIntersection(true);
+
+			expect(await screen.findByTestId('repository-item-skeleton')).toBeInTheDocument();
+
+			await waitFor(() => {
+				expect(screen.queryByTestId('repository-item-skeleton')).not.toBeInTheDocument();
+			});
+		});
+
+		it('appends new results to existing list in correct order', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getAllByTestId('repository-full-name')).toHaveLength(2);
+			});
+
+			const initialResults = screen.getAllByTestId('repository-full-name');
+			expect(initialResults[0]).toHaveTextContent('facebook/react');
+			expect(initialResults[1]).toHaveTextContent('vuejs/vue');
+
+			triggerIntersection(true);
+
+			await waitFor(() => {
+				expect(screen.getAllByTestId('repository-full-name')).toHaveLength(3);
+			});
+
+			const allResults = screen.getAllByTestId('repository-full-name');
+			expect(allResults[0]).toHaveTextContent('facebook/react');
+			expect(allResults[1]).toHaveTextContent('vuejs/vue');
+			expect(allResults[2]).toHaveTextContent('angular/angular');
+		});
+
+		it('does not load more when intersection is false', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getAllByTestId('repository-full-name')).toHaveLength(2);
+			});
+
+			triggerIntersection(false);
+
+			await new Promise(resolve => setTimeout(resolve, 500));
+
+			expect(screen.getAllByTestId('repository-full-name')).toHaveLength(2);
+			expect(screen.queryByTestId('repository-item-skeleton')).not.toBeInTheDocument();
+		});
+
+		it('stops loading when no more pages available', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getAllByTestId('repository-full-name')).toHaveLength(2);
+			});
+
+			triggerIntersection(true);
+
+			await waitFor(() => {
+				expect(screen.getAllByTestId('repository-full-name')).toHaveLength(3);
+			});
+
+			triggerIntersection(true);
+
+			await new Promise(resolve => setTimeout(resolve, 500));
+
+			expect(screen.getAllByTestId('repository-full-name')).toHaveLength(3);
+			expect(screen.queryByTestId('repository-item-skeleton')).not.toBeInTheDocument();
 		});
 	});
 });
