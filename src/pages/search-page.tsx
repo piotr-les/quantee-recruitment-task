@@ -24,7 +24,14 @@ export const SearchPage = () => {
 		if (isError) return <StateDisplay.Error onAction={handleRetry} />;
 		if (hasNoResults) return <StateDisplay.NoResults />;
 		if (hasResults)
-			return <RepositoryList data={data} isFetchingNextPage={isFetchingNextPage} />;
+			return (
+				<RepositoryList
+					data={data}
+					isFetchingNextPage={isFetchingNextPage}
+					hasNextPage={hasNextPage}
+					onFetchNextPage={fetchNextPage}
+				/>
+			);
 		return null;
 	};
 
