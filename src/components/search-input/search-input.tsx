@@ -16,7 +16,7 @@ export const SearchInput = ({
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
-			onQueryChange(inputValue);
+			onQueryChange(inputValue.trim());
 		}, debounceMs);
 
 		return () => clearTimeout(timer);
