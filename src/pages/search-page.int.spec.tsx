@@ -202,4 +202,99 @@ describe('SearchPage Integration Tests', () => {
 			});
 		});
 	});
+
+	describe('Success State', () => {
+		it('shows repository results when search is successful', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await screen.findByTestId('repository-list-skeleton');
+
+			await waitFor(() => {
+				expect(screen.getAllByTestId('repository-full-name')).toHaveLength(2);
+			});
+
+			expect(screen.queryByTestId('repository-list-skeleton')).not.toBeInTheDocument();
+			expect(screen.queryByTestId('state-display-empty')).not.toBeInTheDocument();
+			expect(screen.queryByTestId('state-display-error')).not.toBeInTheDocument();
+			expect(screen.queryByTestId('state-display-no-results')).not.toBeInTheDocument();
+		});
+
+		it('displays repository information correctly', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getByText('facebook/react')).toBeInTheDocument();
+			});
+
+			expect(
+				screen.getByText('The library for web and native user interfaces.')
+			).toBeInTheDocument();
+			expect(screen.getByText('220 000')).toBeInTheDocument();
+			expect(screen.getByText('JavaScript')).toBeInTheDocument();
+
+			const avatars = screen.getAllByTestId('repository-owner-avatar');
+			expect(avatars).toHaveLength(2);
+
+			const links = screen.getAllByTestId('repository-full-name');
+			expect(links[0]).toHaveAttribute('href', 'https://github.com/facebook/react');
+			expect(links[0]).toHaveAttribute('target', '_blank');
+		});
+
+		it('shows multiple repositories from search results', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getByText('facebook/react')).toBeInTheDocument();
+				expect(screen.getByText('vuejs/vue')).toBeInTheDocument();
+			});
+
+			expect(screen.getAllByTestId('repository-full-name')).toHaveLength(2);
+			expect(screen.getAllByTestId('repository-owner-avatar')).toHaveLength(2);
+		});
+
+		it('handles repositories without description or language', async () => {
+			renderWithProviders(<SearchPage />);
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			await waitFor(() => {
+				expect(screen.getByText('vuejs/vue')).toBeInTheDocument();
+			});
+
+			const descriptions = screen.queryAllByTestId('repository-description');
+			const languages = screen.queryAllByTestId('repository-language');
+
+			expect(descriptions.length).toBeLessThan(2);
+			expect(languages.length).toBeGreaterThan(0);
+		});
+
+		it('transitions from loading to results correctly', async () => {
+			renderWithProviders(<SearchPage />);
+
+			expect(screen.getByTestId('state-display-empty')).toBeInTheDocument();
+
+			const searchInput = screen.getByRole('textbox');
+			await userEvent.type(searchInput, 'react');
+
+			expect(await screen.findByTestId('repository-list-skeleton')).toBeInTheDocument();
+			expect(screen.queryByTestId('state-display-empty')).not.toBeInTheDocument();
+
+			await waitFor(() => {
+				expect(screen.getByText('facebook/react')).toBeInTheDocument();
+			});
+
+			expect(screen.queryByTestId('repository-list-skeleton')).not.toBeInTheDocument();
+			expect(screen.getByTestId('infinite-scroll-sentinel')).toBeInTheDocument();
+		});
+	});
 });
