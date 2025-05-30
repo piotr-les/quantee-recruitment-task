@@ -3,6 +3,7 @@ import { TextField } from '@mui/material';
 
 export interface SearchInputProps {
 	onQueryChange: (query: string) => void;
+	defaultValue: string;
 	placeholder?: string;
 	debounceMs?: number;
 }
@@ -11,8 +12,9 @@ export const SearchInput = ({
 	onQueryChange,
 	placeholder = 'Search repositories...',
 	debounceMs = 500,
+	defaultValue,
 }: SearchInputProps) => {
-	const [inputValue, setInputValue] = useState('');
+	const [inputValue, setInputValue] = useState(defaultValue ?? '');
 
 	useEffect(() => {
 		const timer = setTimeout(() => {

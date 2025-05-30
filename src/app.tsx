@@ -3,6 +3,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SearchPage } from './pages/search-page';
+import { BrowserRouter, Routes, Route } from 'react-router';
 
 const theme = createTheme({
 	palette: {
@@ -25,7 +26,11 @@ export const App = () => {
 			<ReactQueryDevtools initialIsOpen={false} />
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
-				<SearchPage />
+				<BrowserRouter>
+					<Routes>
+						<Route path="/" element={<SearchPage />} />
+					</Routes>
+				</BrowserRouter>
 			</ThemeProvider>
 		</QueryClientProvider>
 	);

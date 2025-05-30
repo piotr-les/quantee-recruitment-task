@@ -1,13 +1,28 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { Container, Typography, Box } from '@mui/material';
 import { useSearchRepositoriesQuery } from '@api-hooks/use-search-repositories-query/use-search-repositories-query';
 import { SearchInput } from '@components/search-input/search-input';
 import { StateDisplay } from '@components/state-display/state-display';
 import { RepositoryListSkeleton } from '@components/repository-list-skeleton/repository-list-skeleton';
 import { RepositoryList } from '@components/repository-list/repository-list';
+import { useSearchParams } from 'react-router';
+
+const QUERY_KEY = 'query' as const;
 
 export const SearchPage = () => {
-	const [query, setQuery] = useState('');
+	const [searchParams, setSearchParams] = useSearchParams();
+	const query = searchParams.get(QUERY_KEY) ?? '';
+
+	const handleUrlChange = useCallback(
+		(newQuery?: string) => {
+			if (!newQuery) return;
+
+			setSearchParams({
+				[QUERY_KEY]: newQuery,
+			});
+		},
+		[setSearchParams]
+	);
 
 	const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
 		useSearchRepositoriesQuery(query);
@@ -46,7 +61,8 @@ export const SearchPage = () => {
 				</Typography>
 
 				<SearchInput
-					onQueryChange={setQuery}
+					onQueryChange={handleUrlChange}
+					defaultValue={query}
 					placeholder="Search repositories..."
 					debounceMs={500}
 				/>
