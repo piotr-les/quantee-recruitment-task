@@ -6,6 +6,7 @@ import { StateDisplay } from '@components/state-display/state-display';
 import { RepositoryListSkeleton } from '@components/repository-list-skeleton/repository-list-skeleton';
 import { RepositoryList } from '@components/repository-list/repository-list';
 import { useSearchParams } from 'react-router';
+import { ErrorAlert } from '@/components/error-alert/error-alert';
 
 const QUERY_KEY = 'query' as const;
 
@@ -24,19 +25,16 @@ export const SearchPage = () => {
 		[setSearchParams]
 	);
 
-	const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+	const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
 		useSearchRepositoriesQuery(query);
 
 	const hasQuery = query.trim().length > 0;
 	const hasResults = data && data.pages[0]?.total_count > 0;
 	const hasNoResults = data && data.pages[0]?.total_count === 0;
 
-	const handleRetry = () => window.location.reload();
-
 	const renderContent = () => {
 		if (!hasQuery) return <StateDisplay.Empty />;
 		if (isLoading) return <RepositoryListSkeleton />;
-		if (isError) return <StateDisplay.Error onAction={handleRetry} />;
 		if (hasNoResults) return <StateDisplay.NoResults />;
 		if (hasResults)
 			return (
@@ -68,6 +66,8 @@ export const SearchPage = () => {
 				/>
 
 				{renderContent()}
+
+				<ErrorAlert isError={isError} refetch={refetch} />
 			</Box>
 		</Container>
 	);
